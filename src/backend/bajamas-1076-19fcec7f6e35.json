@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "bajamas-1076",
+  "private_key_id": "19fcec7f6e359726da6e104f3a96f7b0dfcb6ff7",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDk9DbX4tm5ctJz\nKwPqY7GW1IrQ7Q1fQ0QrBH5royHDiQoBlNap2GsHc0Gpv9lp1KxBsMfRjqxWLqG4\naP3AC3qAdctDI3mIMzf+soFb3JI7BXB+xfV0qOfSmP5iP53NTonrSezzXClchyYh\n5D9eLwqzQaKg/eMx5bTWXKR1a8lnmB4dxj/Cl585tPG9bw2iIrJoVMRQeKbU10j6\nDwvqPQhzb98ZMrhKwGPqxEwGvhgPb8UgVYyA41X0OVVb5hn9gkVX8MFjlF8fjyl9\nGCMaZ1MP2AiejdT2OXKd+2A3kqg0Q4wyo5YPcxzHWH+R3jyAiCglNP+70CkmFjxb\nky4KOkyHAgMBAAECggEAISzt9tGtNietgk39BEKr4gIsQeKHlIKHvIAAiDzxezGT\n8e9iPObaI2XlDDbQxyVaTIPUKx5fBHc/Vxxc4INenddJERJxMst71VEtA2WZCX+x\nRv1iTXmIFfELXgB/2ixY5G99gTSdMwYhAA+LIGz1Qkzuxss4gkDEYmdhgTjmzIwX\nq+1WcCkAwgLOTgj57QTfPDLm3ihWG3cwnHOg6NSepzBqBBBCzdZqOGoxOfp1eZx1\nngXVvZgeRdd8eSgXIrH/Lu55MWZVTd0hYFLe4DSP85+YLU2UjHjRvMyODKvIhY8M\nl1h0XYV5EIBPvZX6S8ZyRbtTJ+C4nk2SR8KAUZUH4QKBgQD/PMu+FQ9BH/nywwSP\npu0/rSk5pqZBA+Kh24TfT6FwOFDa+ps7XvrzDDRBzh11KQPUYWauowFj82ULFhKH\nB7Dka9j7vDESRTf9bRB3aSB7oGVkg4FlnOaA87+VXjqYBG51hi6/pir/1ICvgynN\nJb5Z+R8i2UjFWCv+1DE3TPcO8QKBgQDlo1Ee+yQmV6xXJwFrtojpXISEuyZ0MvUH\nNNq0kQqe5QjAn1EPU3Q04kooNix/vslXytqsNTrGV3pgoWC54AOz+ydOLjCFDfZA\noM31KxiYgsntPGJID6Em3zc2sSU+HRlsJ7TDIMvuBlmuBYLF4LZk/LamqIl6rEHx\n+amdj40C9wKBgH5yzC17mXcWNGpEm3nfpSIq04WwPiVvm1O8wXMwrDZAcC5MgaNE\nRucqYKlJR+bHTxJkvs4+C25NIv3/DWbANK61j2YHsffvOvHemo3OEz2sFQ9a5zxE\nIx43o+6IJFczutWWiIqB9EOSL77EKG1uCYPhm79UDm1WZVV2InvXMX7BAoGBAIEh\nfntydBiPkp0LlRPx+DlpyictamlLQlhEE3wYV6WUW4Cd1iJNJnqaiWLlW86WBXi1\n3JOb9yoThQCTnuXHH6303FxtQuF/QWuEQWzNSC5y1YPvQcEN8Ov/93ds0+mCyYn1\nJgPYDHUT4xglhy0ouMg/B6LeATkXZpngb83nLD9vAoGAdCLh5ZrPnvOQS2XmU19x\n9mPN6as24q/CZD05nV/iXgM24aJK9VMUvYOnXnOVtkPJnw165WIxvqeHoK8h8QjA\n26C9yv5GjrxXUSOZnyvkZkBhs2oGEXK44bnMtiRPwx9WpJbhukfMnSV4Fluk8wDf\nthiY0CliLwjf+YpLrAlCV5A=\n-----END PRIVATE KEY-----\n",
+  "client_email": "bajamas-1076@appspot.gserviceaccount.com",
+  "client_id": "103048190814206373844",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/bajamas-1076%40appspot.gserviceaccount.com"
+}
+
