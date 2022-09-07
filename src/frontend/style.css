@@ -1088,10 +1088,10 @@ input:-webkit-autofill:active {
 
 .experience-textbox:focus {
   border: 0.15vw solid var(--theblue);
-  background: linear-gradient(white, var(--theblue));
-  animation: rotate 4s linear infinite;
+  /* background: linear-gradient(white, var(--theblue));
+  animation: rotate 4s linear infinite; */
 }
-
+/* 
 @keyframes rotate {
   from {
     transform: rotate(0deg);
@@ -1099,4 +1099,4 @@ input:-webkit-autofill:active {
   to {
     transform: rotate(360deg);
   }
-}
+} */
