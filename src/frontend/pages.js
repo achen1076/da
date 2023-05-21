@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./style.css";
-import { PageHeader, PageFooter } from "./component/pageFormat";
+import { PageHeader, PageFooter, Loading } from "./component/pageFormat";
 import {
   IndexTitleContainer,
   IndexBarContainer,
@@ -10,8 +10,10 @@ import { AboutContainer } from "./component/about";
 import { GoogleAuth } from "./component/login";
 import { auth, provider } from "./firebase-config";
 import { signInWithPopup } from "firebase/auth";
-import { AccountHeader } from "./component/account";
+import { AccountBody } from "./component/account";
 import { CreateHeader, CreateBody } from "./component/create";
+import { SearchHeader, Search } from "./component/search";
+import { EditBody } from "./component/edit";
 
 export function IndexPage() {
   return (
@@ -77,22 +79,8 @@ export function AccountPage() {
           <PageHeader />
         </section>
       </header>
-      <AccountHeader />
-      <footer id="footer" class="footer main-footer">
-        <PageFooter />
-      </footer>
-    </React.Fragment>
-  );
-}
-
-export function SignUpPage() {
-  return (
-    <React.Fragment>
-      <header class="main-header">
-        <section id="navHeader">
-          <PageHeader />
-        </section>
-      </header>
+      <Loading />
+      <AccountBody />
       <footer id="footer" class="footer main-footer">
         <PageFooter />
       </footer>
@@ -117,7 +105,7 @@ export function CreatePage() {
   );
 }
 
-export function FindPage() {
+export function EditPage() {
   return (
     <React.Fragment>
       <header class="main-header">
@@ -125,6 +113,27 @@ export function FindPage() {
           <PageHeader />
         </section>
       </header>
+      <Loading />
+      <EditBody />
+      <footer id="footer" class="footer main-footer">
+        <PageFooter />
+      </footer>
+    </React.Fragment>
+  );
+}
+
+export function SearchPage() {
+  return (
+    <React.Fragment>
+      <header class="main-header">
+        <section id="navHeader">
+          <PageHeader />
+        </section>
+      </header>
+
+      <SearchHeader />
+      <Search />
+
       <footer id="footer" class="footer main-footer">
         <PageFooter />
       </footer>

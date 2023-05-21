@@ -1,4 +1,10 @@
 import React, { Component } from "react";
+import data from "../data/data.json";
+import teams from "../data/teams.json";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { setDoc, doc } from "firebase/firestore";
+import { auth, provider, db } from "../firebase-config";
+import { useNavigate } from "react-router-dom";
 
 //Create Account Page
 
@@ -6,25 +12,120 @@ export function CreateHeader() {
   return (
     <section className="section create-header-section">
       <div className="create-header-container">
-        <h3 className="create-header-text">Create Your Profile</h3>
-        <hr className="create-header-line"></hr>
+        <h3 className="create-header-text">Create Your Account</h3>
+        <div className="line"></div>
       </div>
     </section>
   );
 }
 
 export function CreateBody() {
+  let navigate = useNavigate();
   var currentPageNumber = 1;
-  var hobbyCount = 1;
-  var interestCount = 1;
-  var experienceCount = 1;
+  var teamCount = 1;
+  var playerCount = 1;
+
+  const validateInformation = () => {
+    let valid = true;
+    const firstName = document.getElementById("first-name").value;
+    const lastName = document.getElementById("last-name").value;
+    const month = document.getElementById("month").value;
+    const year = document.getElementById("year").value;
+    const day = document.getElementById("day").value;
+    const phone = document.getElementById("phone-number").value;
+
+    if (
+      firstName == "" ||
+      lastName == "" ||
+      month == "" ||
+      day == "" ||
+      year == "" ||
+      phone == ""
+    ) {
+      valid = false;
+    }
+
+    if (phone.length != 10) {
+      valid = false;
+    }
+
+    for (let index in phone) {
+      const number = phone[index];
+      if (number >= "0" && number <= "9") {
+      } else {
+        valid = false;
+      }
+    }
+    console.log(valid);
+    return valid;
+  };
+
+  const createAccount = () => {
+    let valid = false;
+    const auth = getAuth();
+    const accountError = document.getElementById("accountError");
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const firstName = document.getElementById("first-name").value;
+    const lastName = document.getElementById("last-name").value;
+    const name = firstName + " " + lastName;
+    const dob =
+      document.getElementById("month").value +
+      "/" +
+      document.getElementById("day").value +
+      "/" +
+      document.getElementById("year").value;
+
+    const phone = document.getElementById("phone-number").value;
+
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+
+        user.displayName = name;
+        user.email = email;
+        localStorage.setItem("IsAuth", true);
+        const dataId = auth.currentUser.uid;
+        const docRef = doc(db, dataId, "user");
+        setDoc(docRef, {
+          name: name,
+          email: email,
+          phone: phone,
+          dob: dob,
+        });
+        accountError.innerHTML = "";
+        navigate("/");
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        if (errorCode == "auth/weak-password") {
+          accountError.innerHTML =
+            "Password too weak, please enter atleast 6 characters";
+        } else if (errorCode == "auth/email-already-in-use") {
+          accountError.innerHTML = "Email already in use";
+        } else if (errorCode == "auth/invalid-email") {
+          accountError.innerHTML = "Invalid email";
+        }
+      });
+  };
 
   const nextPage = () => {
-    let currPage = "profileCreateContainer" + currentPageNumber;
-    let nextPage = "profileCreateContainer" + (currentPageNumber + 1);
-    document.getElementById(nextPage).style.display = "grid";
-    document.getElementById(currPage).style.display = "none";
-    currentPageNumber += 1;
+    const infoError = document.getElementById("infoError");
+
+    if (validateInformation()) {
+      infoError.style.display = "none";
+      infoError.innerHTML = "";
+      let currPage = "profileCreateContainer" + currentPageNumber;
+      let nextPage = "profileCreateContainer" + (currentPageNumber + 1);
+      document.getElementById(nextPage).style.display = "grid";
+      document.getElementById(currPage).style.display = "none";
+      currentPageNumber += 1;
+    } else {
+      infoError.style.display = "flex";
+      infoError.innerHTML = "Please fix missing or incorrect entries";
+    }
   };
 
   const prevPage = () => {
@@ -35,205 +136,129 @@ export function CreateBody() {
     currentPageNumber -= 1;
   };
 
-  const hobbySplitByComma = () => {
-    let hobby = document.getElementById("hobbies").value;
-    let ul = document.getElementById("hobbyList");
-    let li = document.createElement("li");
+  const teamSplitByComma = () => {
+    let team = document.getElementById("teams").value;
 
-    if (hobby[hobby.length - 1] == ",") {
-      hobby = hobby.trim();
-      let hobbyLiClassName = "about-list-element";
-      let currListElementClassName = "hbli" + hobbyCount;
-      let hobbyListClassName =
-        hobbyLiClassName + " " + currListElementClassName;
+    if (team[team.length - 1] == ",") {
+      let allowed = false;
+      const element = team.slice(0, team.length - 1);
+      if (teams.includes(element)) {
+        allowed = true;
+      }
 
-      let deleteHobbyButton = document.createElement("button");
-      deleteHobbyButton.onclick = function () {
-        document.getElementById(currListElementClassName).remove();
-      };
+      if (allowed) {
+        let ul = document.getElementById("teamList");
+        let li = document.createElement("li");
+        team = team.trim();
+        let teamLiClassName = "about-list-element";
+        let currListElementClassName = "teamli" + teamCount;
+        let teamListClassName =
+          teamLiClassName + " " + currListElementClassName;
 
-      li.setAttribute("class", hobbyListClassName);
-      li.setAttribute("id", currListElementClassName);
-      deleteHobbyButton.setAttribute("class", "delete-item-button");
-      let listInner = document.createElement("p");
-      listInner.innerHTML = hobby.slice(0, hobby.length - 1);
-      listInner.setAttribute("class", "list-inner-text");
-      let hobbyListContainer = document.createElement("div");
-      hobbyListContainer.setAttribute("class", "about-list-container");
-      hobbyListContainer.appendChild(listInner);
-      hobbyListContainer.appendChild(deleteHobbyButton);
-      li.appendChild(hobbyListContainer);
-      ul.appendChild(li);
+        let deleteteamButton = document.createElement("button");
+        deleteteamButton.onclick = function () {
+          document.getElementById(currListElementClassName).remove();
+        };
 
-      document.getElementById("hobbies").value = "";
-      hobbyCount += 1;
-    }
-  };
+        li.setAttribute("class", teamListClassName);
+        li.setAttribute("id", currListElementClassName);
+        deleteteamButton.setAttribute("class", "delete-item-button");
+        let listInner = document.createElement("p");
+        listInner.innerHTML = team.slice(0, team.length - 1);
+        listInner.setAttribute("class", "list-inner-text");
+        let teamListContainer = document.createElement("div");
+        teamListContainer.setAttribute("class", "about-list-container");
+        teamListContainer.appendChild(listInner);
+        teamListContainer.appendChild(deleteteamButton);
+        li.appendChild(teamListContainer);
+        ul.appendChild(li);
 
-  const interestSplitByComma = () => {
-    let interest = document.getElementById("interest").value;
-    let ul = document.getElementById("interestList");
-    let li = document.createElement("li");
-
-    if (interest[interest.length - 1] == ",") {
-      interest = interest.trim();
-      let interestLiClassName = "about-list-element";
-      let currListElementClassName = "inli" + interestCount;
-      let interestListClassName =
-        interestLiClassName + " " + currListElementClassName;
-
-      let deleteInterestButton = document.createElement("button");
-      deleteInterestButton.onclick = function () {
-        document.getElementById(currListElementClassName).remove();
-      };
-      li.setAttribute("class", interestListClassName);
-      li.setAttribute("id", currListElementClassName);
-      deleteInterestButton.setAttribute("class", "delete-item-button");
-      let listInner = document.createElement("p");
-      listInner.innerHTML = interest.slice(0, interest.length - 1);
-      listInner.setAttribute("class", "list-inner-text");
-      let interestListContainer = document.createElement("div");
-      interestListContainer.setAttribute("class", "about-list-container");
-      interestListContainer.appendChild(listInner);
-      interestListContainer.appendChild(deleteInterestButton);
-      li.appendChild(interestListContainer);
-      ul.appendChild(li);
-
-      document.getElementById("interest").value = "";
-      interestCount += 1;
-    }
-  };
-
-  const skillsSplitByComma = () => {
-    let skills = document.getElementById("skills").value;
-    let ul = document.getElementById("skillsList");
-    let li = document.createElement("li");
-
-    if (skills[skills.length - 1] == ",") {
-      skills = skills.trim();
-      let skillsLiClassName = "about-list-element";
-      let currListElementClassName = "skli" + interestCount;
-      let skillsListClassName =
-        skillsLiClassName + " " + currListElementClassName;
-
-      let deleteSkillButton = document.createElement("button");
-      deleteSkillButton.onclick = function () {
-        document.getElementById(currListElementClassName).remove();
-      };
-      li.setAttribute("class", skillsListClassName);
-      li.setAttribute("id", currListElementClassName);
-      deleteSkillButton.setAttribute("class", "delete-item-button");
-      let listInner = document.createElement("p");
-      listInner.innerHTML = skills.slice(0, skills.length - 1);
-      listInner.setAttribute("class", "list-inner-text");
-      let skillListContainer = document.createElement("div");
-      skillListContainer.setAttribute("class", "about-list-container");
-      skillListContainer.appendChild(listInner);
-      skillListContainer.appendChild(deleteSkillButton);
-      li.appendChild(skillListContainer);
-      ul.appendChild(li);
-
-      document.getElementById("skills").value = "";
-      interestCount += 1;
-    }
-  };
-
-  const clearEmptyField = (n) => {
-    let inputIdName = "experience" + n;
-    let currInput = document.getElementById(inputIdName).value;
-    if (currInput == "") {
-      document.getElementById("experienceTextbox" + n).remove();
-      document.getElementById("experienceContainer" + n).remove();
-      if (n == experienceCount) {
-        document.getElementById("experienceTitle" + (n + 1)).remove();
-      } else {
-        document.getElementById("experienceTitle" + n).remove();
+        document.getElementById("teams").value = "";
+        teamCount += 1;
       }
     }
   };
 
-  const createTextBox = (n) => {
-    let section = document.getElementById("experienceSection");
-    let newContainer = document.createElement("div");
-    let textBox = document.createElement("textarea");
+  const playerSplitByComma = () => {
+    let player = document.getElementById("player").value;
+    if (player[player.length - 1] == ",") {
+      let allowed = false;
+      const element = player.slice(0, player.length - 1).toLowerCase();
+      for (let i = 0; i < data.length; ++i) {
+        const name = data[i].Name.toLowerCase();
+        if (name == element) {
+          allowed = true;
+          player = data[i].Name;
+          break;
+        }
+      }
 
-    newContainer.setAttribute("class", "experience-container");
-    newContainer.setAttribute("id", "experienceContainer" + n);
-    textBox.setAttribute("class", "experience-textbox");
-    textBox.setAttribute("id", "experienceTextbox" + n);
-    textBox.setAttribute("placeholder", "Description of experience...");
-    textBox.setAttribute("rows", 10);
-    newContainer.appendChild(textBox);
-    section.appendChild(newContainer);
+      if (allowed) {
+        let ul = document.getElementById("playerList");
+        let li = document.createElement("li");
+        let playerLiClassName = "about-list-element";
+        let currListElementClassName = "playerli" + playerCount;
+        let playerListClassName =
+          playerLiClassName + " " + currListElementClassName;
 
-    experienceCount += 1;
-  };
+        let deleteplayerButton = document.createElement("button");
+        deleteplayerButton.onclick = function () {
+          document.getElementById(currListElementClassName).remove();
+        };
+        li.setAttribute("class", playerListClassName);
+        li.setAttribute("id", currListElementClassName);
+        deleteplayerButton.setAttribute("class", "delete-item-button");
+        let listInner = document.createElement("p");
+        listInner.innerHTML = player;
+        listInner.setAttribute("class", "list-inner-text");
+        let playerListContainer = document.createElement("div");
+        playerListContainer.setAttribute("class", "about-list-container");
+        playerListContainer.appendChild(listInner);
+        playerListContainer.appendChild(deleteplayerButton);
+        li.appendChild(playerListContainer);
+        ul.appendChild(li);
 
-  const experienceList = (n) => {
-    if (n == experienceCount) {
-      createTextBox(n);
-      n += 1;
-      let section = document.getElementById("experienceSection");
-      let newInputContainer = document.createElement("div");
-      let label = document.createElement("label");
-      let input = document.createElement("input");
-      let profileLabelSpan = document.createElement("span");
-      let profilePlaceholderSpan = document.createElement("span");
-      newInputContainer.setAttribute("class", "field profile-input-box");
-      newInputContainer.setAttribute("id", "experienceTitle" + n);
-      label.setAttribute("for", "experience" + n);
-      label.setAttribute("class", "ha-screen-reader");
-      input.setAttribute("id", "experience" + n);
-      input.setAttribute("class", "profile-user-input");
-      input.setAttribute("placeholder", "List your experiences...");
-      input.setAttribute("autoComplete", "none");
-      input.onclick = function () {
-        experienceList(n);
-      };
-      input.onblur = function () {
-        clearEmptyField(n);
-      };
-      profileLabelSpan.setAttribute("class", "profile-field-label");
-      profileLabelSpan.setAttribute("aria-hidden", "true");
-      profilePlaceholderSpan.setAttribute("class", "profile-field-placeholder");
-      profilePlaceholderSpan.innerHTML = "Experiences";
-
-      profileLabelSpan.appendChild(profilePlaceholderSpan);
-      newInputContainer.appendChild(label);
-      newInputContainer.appendChild(input);
-      newInputContainer.appendChild(profileLabelSpan);
-      section.appendChild(newInputContainer);
+        document.getElementById("player").value = "";
+        playerCount += 1;
+      }
     }
   };
 
-  const clearHobbyField = () => {
-    document.getElementById("hobbies").value = "";
+  const confirmPassword = () => {
+    const password = document.getElementById("password").value;
+    const confirm = document.getElementById("confirm").value;
+    const error = document.getElementById("passwordError");
+
+    error.style.display = "none";
+
+    if (password != confirm && confirm != "") {
+      error.style.display = "block";
+    }
   };
 
-  const clearInterestField = () => {
-    document.getElementById("interest").value = "";
+  const clearTeamsField = () => {
+    document.getElementById("teams").value = "";
   };
 
-  const clearSkillsField = () => {
-    document.getElementById("skills").value = "";
+  const clearPlayerField = () => {
+    document.getElementById("player").value = "";
   };
 
   return (
     <section className="section create-body-section">
       <div className="create-profile-container" id="profileCreateContainer1">
         <h1 className="basic-info-header">Basic Information</h1>
-        <br />
         <div className="field profile-input-box autocomplete-blocker">
-          <label for="phone-number" className="ha-screen-reader">
-            Phone number
+          <label for="phone" className="ha-screen-reader">
+            hi
           </label>
           <input
-            id="phone-number"
+            id="phone"
             className="profile-user-input"
             placeholder="e.g. 123-456-7890"
           />
           <span className="profile-field-label" aria-hidden="true">
-            <span className="profile-field-placeholder">Phone number</span>
+            <span className="profile-field-placeholder">hi</span>
           </span>
         </div>
         <div className="field profile-input-box">
@@ -251,20 +276,6 @@ export function CreateBody() {
           </span>
         </div>
         <div className="field profile-input-box">
-          <label for="middle-name" className="ha-screen-reader">
-            Middle name
-          </label>
-          <input
-            id="Middle-name"
-            className="profile-user-input"
-            placeholder="e.g. Nathan (optional)"
-            autoComplete="none"
-          />
-          <span className="profile-field-label" aria-hidden="true">
-            <span className="profile-field-placeholder">Middle name</span>
-          </span>
-        </div>
-        <div className="field profile-input-box">
           <label for="last-name" className="ha-screen-reader">
             Last name
           </label>
@@ -278,6 +289,126 @@ export function CreateBody() {
             <span className="profile-field-placeholder">Last name</span>
           </span>
         </div>
+        <p className="dob-title">Date of Birth</p>
+
+        <div className="field profile-input-box">
+          <div className="month-input">
+            <label for="month" className="ha-screen-reader">
+              Month
+            </label>
+            <input
+              id="month"
+              className="profile-user-input"
+              placeholder="e.g. 03"
+              autoComplete="none"
+            />
+            <span className="profile-field-label" aria-hidden="true">
+              <span className="profile-field-placeholder">Month</span>
+            </span>
+          </div>
+          <div className="day-input">
+            <label for="day" className="ha-screen-reader">
+              Day
+            </label>
+            <input
+              id="day"
+              className="profile-user-input"
+              placeholder="e.g. 12"
+              autoComplete="none"
+            />
+            <span className="profile-field-label" aria-hidden="true">
+              <span className="profile-field-placeholder">Day</span>
+            </span>
+          </div>
+          <div className="year-input">
+            <label for="year" className="ha-screen-reader">
+              Year
+            </label>
+            <input
+              id="year"
+              className="profile-user-input"
+              placeholder="e.g. 2003"
+              autoComplete="none"
+            />
+            <span className="profile-field-label" aria-hidden="true">
+              <span className="profile-field-placeholder">Year</span>
+            </span>
+          </div>
+        </div>
+        <div className="field profile-input-box">
+          <label for="phone-number" className="ha-screen-reader">
+            Phone number
+          </label>
+          <input
+            id="phone-number"
+            className="profile-user-input"
+            placeholder="e.g. 1234567890"
+            autoComplete="none"
+          />
+          <span className="profile-field-label" aria-hidden="true">
+            <span className="profile-field-placeholder">Phone number</span>
+          </span>
+        </div>
+        <p className="information-error" id="infoError"></p>
+        <button
+          className="button basic-info-continue-button"
+          onClick={nextPage}
+        >
+          Continue
+        </button>
+      </div>
+      <div className="create-profile-container-2" id="profileCreateContainer2">
+        <h1 className="basic-info-header">Personalization</h1>
+        <p className="create-profile-subtext">
+          List your favorite teams and/or players!
+        </p>
+        <br />
+        <div className="field profile-input-box">
+          <label for="teams" className="ha-screen-reader">
+            Teams
+          </label>
+          <input
+            id="teams"
+            className="profile-user-input"
+            placeholder="List your teams seperated by commas (e.g San Francisco 49ers)"
+            autoComplete="none"
+            onKeyUp={teamSplitByComma}
+            onBlur={clearTeamsField}
+          />
+          <span className="profile-field-label" aria-hidden="true">
+            <span className="profile-field-placeholder">Teams</span>
+          </span>
+        </div>
+        <ul className="team-list" id="teamList" />
+        <div className="field profile-input-box">
+          <label for="player" className="ha-screen-reader">
+            Players
+          </label>
+          <input
+            id="player"
+            className="profile-user-input"
+            placeholder="List your player seperated by commas (e.g T.J. Hockenson)"
+            autoComplete="none"
+            onKeyUp={playerSplitByComma}
+            onBlur={clearPlayerField}
+          />
+          <span className="profile-field-label" aria-hidden="true">
+            <span className="profile-field-placeholder">Players</span>
+          </span>
+        </div>
+        <ul className="player-list" id="playerList" />
+
+        <div className="create-profile-button-container">
+          <button className="button profile-back-button" onClick={prevPage}>
+            Back
+          </button>
+          <button className="button profile-continue-button" onClick={nextPage}>
+            Continue
+          </button>
+        </div>
+      </div>
+      <div className="create-profile-container-3" id="profileCreateContainer3">
+        <h1 className="basic-info-header">Email and Password</h1>
         <div className="field profile-input-box">
           <label for="email" className="ha-screen-reader">
             E-mail
@@ -292,336 +423,50 @@ export function CreateBody() {
             <span className="profile-field-placeholder">E-mail</span>
           </span>
         </div>
-        <p className="dob-title">Date of Birth</p>
-
         <div className="field profile-input-box">
-          <div className="month-input">
-            <label for="month" className="ha-screen-reader">
-              Month
-            </label>
-            <input
-              id="month"
-              className="profile-user-input"
-              placeholder="e.g. 03"
-            />
-            <span className="profile-field-label" aria-hidden="true">
-              <span className="profile-field-placeholder">Month</span>
-            </span>
-          </div>
-          <div className="day-input">
-            <label for="day" className="ha-screen-reader">
-              Day
-            </label>
-            <input
-              id="day"
-              className="profile-user-input"
-              placeholder="e.g. 12"
-            />
-            <span className="profile-field-label" aria-hidden="true">
-              <span className="profile-field-placeholder">Day</span>
-            </span>
-          </div>
-          <div className="year-input">
-            <label for="year" className="ha-screen-reader">
-              Year
-            </label>
-            <input
-              id="year"
-              className="profile-user-input"
-              placeholder="e.g. 2003"
-            />
-            <span className="profile-field-label" aria-hidden="true">
-              <span className="profile-field-placeholder">Year</span>
-            </span>
-          </div>
-        </div>
-        <div className="field profile-input-box">
-          <label for="country" className="ha-screen-reader">
-            Country/Region
+          <label for="password" className="ha-screen-reader">
+            Password
           </label>
           <input
-            id="country"
+            id="password"
             className="profile-user-input"
-            placeholder="e.g. United States"
+            placeholder=" "
             autoComplete="none"
+            type="password"
           />
           <span className="profile-field-label" aria-hidden="true">
-            <span className="profile-field-placeholder">Country/Region</span>
+            <span className="profile-field-placeholder">Password</span>
           </span>
         </div>
         <div className="field profile-input-box">
-          <label for="city" className="ha-screen-reader">
-            City
+          <label for="confirm" className="ha-screen-reader">
+            Confirm Password
           </label>
           <input
-            id="city"
+            id="confirm"
             className="profile-user-input"
-            placeholder="e.g. Detroit"
+            placeholder=" "
             autoComplete="none"
+            type="password"
+            onKeyUp={confirmPassword}
           />
           <span className="profile-field-label" aria-hidden="true">
-            <span className="profile-field-placeholder">City</span>
+            <span className="profile-field-placeholder">Confirm Password</span>
           </span>
         </div>
-        <div className="field profile-input-box">
-          <label for="state" className="ha-screen-reader">
-            State
-          </label>
-          <input
-            id="state"
-            className="profile-user-input"
-            placeholder="e.g. Michigan"
-            autoComplete="none"
-          />
-          <span className="profile-field-label" aria-hidden="true">
-            <span className="profile-field-placeholder">State/Province</span>
-          </span>
-        </div>
-        <div className="field profile-input-box">
-          <label for="zipcode" className="ha-screen-reader">
-            ZIP Code
-          </label>
-          <input
-            id="zipcode"
-            className="profile-user-input"
-            placeholder="e.g. 90210"
-            autoComplete="none"
-          />
-          <span className="profile-field-label" aria-hidden="true">
-            <span className="profile-field-placeholder">ZIP Code</span>
-          </span>
-        </div>
-        <div className="field profile-input-box">
-          <label for="phone-number" className="ha-screen-reader">
-            Phone number
-          </label>
-          <input
-            id="phone-number"
-            className="profile-user-input"
-            placeholder="e.g. 123-456-7890"
-            autoComplete="none"
-          />
-          <span className="profile-field-label" aria-hidden="true">
-            <span className="profile-field-placeholder">Phone number</span>
-          </span>
-        </div>
-        <button
-          className="button basic-info-continue-button"
-          onClick={nextPage}
-        >
-          Continue
-        </button>
-      </div>
-      {/* Social Media */}
-      <div className="create-profile-container-2" id="profileCreateContainer2">
-        <h1 className="basic-info-header">Social Media Info</h1>
-        <p className="social-media-warning">
-          If you do not have or do not want to display one of the social media
-          platform information, just leave it blank.
+        <p className="password-error-message" id="passwordError">
+          Passwords do not match
         </p>
-        <br />
-        <div className="field profile-input-box">
-          <label for="snap" className="ha-screen-reader">
-            Snapchat
-          </label>
-          <input
-            id="snap"
-            className="profile-user-input"
-            placeholder="Enter your Snapchat username..."
-            autoComplete="none"
-          />
-          <span className="profile-field-label" aria-hidden="true">
-            <span className="profile-field-placeholder">Snapchat</span>
-          </span>
-        </div>
-        <div className="field profile-input-box">
-          <label for="instagram" className="ha-screen-reader">
-            Instagram
-          </label>
-          <input
-            id="instagram"
-            className="profile-user-input"
-            placeholder="Enter your Instagram username..."
-            autoComplete="none"
-          />
-          <span className="profile-field-label" aria-hidden="true">
-            <span className="profile-field-placeholder">Instagram</span>
-          </span>
-        </div>
-        <div className="field profile-input-box">
-          <label for="twitter" className="ha-screen-reader">
-            Twitter
-          </label>
-          <input
-            id="twitter"
-            className="profile-user-input"
-            placeholder="Enter your Twitter username..."
-            autoComplete="none"
-          />
-          <span className="profile-field-label" aria-hidden="true">
-            <span className="profile-field-placeholder">Twitter</span>
-          </span>
-        </div>
-        <div className="field profile-input-box">
-          <label for="fb" className="ha-screen-reader">
-            Facebook
-          </label>
-          <input
-            id="fb"
-            className="profile-user-input"
-            placeholder="Enter your Facebook username..."
-            autoComplete="none"
-          />
-          <span className="profile-field-label" aria-hidden="true">
-            <span className="profile-field-placeholder">Facebook</span>
-          </span>
-        </div>
-        <div className="field profile-input-box">
-          <label for="linkedin" className="ha-screen-reader">
-            LinkedIn
-          </label>
-          <input
-            id="linkedin"
-            className="profile-user-input"
-            placeholder="Enter your LinkedIn username..."
-            autoComplete="none"
-          />
-          <span className="profile-field-label" aria-hidden="true">
-            <span className="profile-field-placeholder">LinkedIn</span>
-          </span>
-        </div>
-        <div className="field profile-input-box">
-          <label for="tiktok" className="ha-screen-reader">
-            TikTok
-          </label>
-          <input
-            id="tiktok"
-            className="profile-user-input"
-            placeholder="Enter your TikTok username..."
-            autoComplete="none"
-          />
-          <span className="profile-field-label" aria-hidden="true">
-            <span className="profile-field-placeholder">TikTok</span>
-          </span>
-        </div>
-        <div className="field profile-input-box">
-          <label for="discord" className="ha-screen-reader">
-            Discord
-          </label>
-          <input
-            id="discord"
-            className="profile-user-input"
-            placeholder="Enter your Discord username..."
-            autoComplete="none"
-          />
-          <span className="profile-field-label" aria-hidden="true">
-            <span className="profile-field-placeholder">Discord</span>
-          </span>
-        </div>
+        <p className="error-message" id="accountError"></p>
         <div className="create-profile-button-container">
           <button className="button profile-back-button" onClick={prevPage}>
             Back
           </button>
-          <button className="button profile-continue-button" onClick={nextPage}>
-            Continue
-          </button>
-        </div>
-      </div>
-      <div className="create-profile-container-3" id="profileCreateContainer3">
-        <h1 className="basic-info-header">Hobbies and Interests</h1>
-        <p className="create-profile-subtext">
-          A little bit about yourself to help others get to know you!
-        </p>
-        <br />
-        <div className="field profile-input-box">
-          <label for="hobbies" className="ha-screen-reader">
-            Hobbies
-          </label>
-          <input
-            id="hobbies"
-            className="profile-user-input"
-            placeholder="List your hobbies seperated by commas"
-            autoComplete="none"
-            onKeyUp={hobbySplitByComma}
-            onBlur={clearHobbyField}
-          />
-          <span className="profile-field-label" aria-hidden="true">
-            <span className="profile-field-placeholder">Hobbies</span>
-          </span>
-        </div>
-        <ul className="hobby-list" id="hobbyList" />
-        <div className="field profile-input-box">
-          <label for="interest" className="ha-screen-reader">
-            Interests
-          </label>
-          <input
-            id="interest"
-            className="profile-user-input"
-            placeholder="List your interests seperated by commas"
-            autoComplete="none"
-            onKeyUp={interestSplitByComma}
-            onBlur={clearInterestField}
-          />
-          <span className="profile-field-label" aria-hidden="true">
-            <span className="profile-field-placeholder">Interests</span>
-          </span>
-        </div>
-        <ul className="interest-list" id="interestList" />
-
-        <div className="create-profile-button-container">
-          <button className="button profile-back-button" onClick={prevPage}>
-            Back
-          </button>
-          <button className="button profile-continue-button" onClick={nextPage}>
-            Continue
-          </button>
-        </div>
-      </div>
-      <div className="create-profile-container-4" id="profileCreateContainer4">
-        <h1 className="basic-info-header">Skills and Experience</h1>
-        <p className=""></p>
-        <br />
-        <div className="field profile-input-box">
-          <label for="skills" className="ha-screen-reader">
-            Skills
-          </label>
-          <input
-            id="skills"
-            className="profile-user-input"
-            placeholder="List your skills seperated by commas"
-            autoComplete="none"
-            onKeyUp={skillsSplitByComma}
-            onBlur={clearSkillsField}
-          />
-          <span className="profile-field-label" aria-hidden="true">
-            <span className="profile-field-placeholder">Skills</span>
-          </span>
-        </div>
-        <ul className="skills-list" id="skillsList" />
-        <div className="experience-section" id="experienceSection">
-          <div className="field profile-input-box" id="experienceTitle1">
-            <label for="experience1" className="ha-screen-reader">
-              Experiences
-            </label>
-            <input
-              id="experience1"
-              className="profile-user-input"
-              placeholder="List your experiences..."
-              autoComplete="none"
-              onClick={() => experienceList(1)}
-              onBlur={() => clearEmptyField(1)}
-            />
-            <span className="profile-field-label" aria-hidden="true">
-              <span className="profile-field-placeholder">Experiences</span>
-            </span>
-          </div>
-        </div>
-        <div className="create-profile-button-container">
-          <button className="button profile-back-button" onClick={prevPage}>
-            Back
-          </button>
-          <button className="button profile-continue-button" onClick={nextPage}>
-            Continue
+          <button
+            className="button profile-done-button"
+            onClick={createAccount}
+          >
+            Done
           </button>
         </div>
       </div>

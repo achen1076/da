@@ -37,7 +37,7 @@ result_dict = {}
 restricted_words = ['the', 'The', 'of', 'Of', 'to', 'To', 'is', 'Is', 'on', 'On', 'for', 'For', 'ago', 'a', 'A', 'hours', 'was', 'Was', 'at', 'At', 'and', 'And', 'as', 'As', 'by', 'By', 'an', 'An', 'in', 'In', 'his', 'His', 'from', 'From', 'have', 'Have', 'after', 'After', 'he', 'He', 'it', 'Is', 'i', "I", 'into', 'Into', 'all', 'All', 'Up', 'Be', 'Not', 'Return' ]
 
 
-def create_data_list(results_dict,user_count_choice):
+def create_data_list(result_dict,user_count_choice):
     
     count_list = []
     alist = []

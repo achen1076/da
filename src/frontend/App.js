@@ -6,9 +6,9 @@ import {
   AboutPage,
   SignInPage,
   AccountPage,
-  SignUpPage,
   CreatePage,
-  FindPage
+  EditPage,
+  SearchPage,
 } from "./pages.js";
 
 export default function App() {
@@ -17,9 +17,9 @@ export default function App() {
       <Route path="/" element={<IndexPage />} />
       <Route path="/about" element={<AboutPage />} />
       <Route path="/login" element={<SignInPage />} />
-      <Route path="/account" element={<AccountPage />} />
-      <Route path="/signup" element={<SignUpPage />} />
-      <Route path="/find" element={<FindPage />} />
+      <Route path="/account/:userId" element={<AccountPage />} />
+      <Route path="/edit/:userId" element={<EditPage />} />
+      <Route path="/search" element={<SearchPage />} />
       <Route path="/create" element={<CreatePage />} />
     </Routes>
   );
